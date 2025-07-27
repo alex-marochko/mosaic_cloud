@@ -6,7 +6,7 @@ orthogonal word clouds, skill showcases, or any other creative composition.
 The package uses a spiral-based algorithm to efficiently pack children without overlaps, supporting both horizontal and
 vertical orientations.
 
-![Example Animation](https://github.com/alex-marochko/mosaic_cloud/blob/main/example.gif?raw=true)
+![Example Animation](https://github.com/alex-marochko/mosaic_cloud/blob/main/assets/example.gif?raw=true)
 
 *The animation shown above is an example of what you can achieve by combining `MosaicCloud` with Flutter's built-in
 animation widgets. The package itself focuses purely on providing the layout algorithm.*
