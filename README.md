@@ -73,42 +73,41 @@ You would typically use a `StatefulWidget` with an `AnimationController` to driv
 
 ```dart
 class AnimatedMosaicExample extends StatefulWidget {
-    const AnimatedMosaicExample({super.key});
+  const AnimatedMosaicExample({super.key});
 
-    @override
-    State<AnimatedMosaicExample> createState() => _AnimatedMosaicExampleState();
+  @override
+  State<AnimatedMosaicExample> createState() => _AnimatedMosaicExampleState();
 }
 
 class _AnimatedMosaicExampleState extends State<AnimatedMosaicExample> with SingleTickerProviderStateMixin {
-late AnimationController _controller;
+  late AnimationController _controller;
 
-    final List<Widget> _skills = [
-      Text('Flutter'),
-      Text('Dart'),
-      Text('BLoC'),
-      // ... more widgets
-    ];
+  final List<Widget> _skills = [
+    Text('Flutter'),
+    Text('Dart'),
+    Text('BLoC'),
+    // ... more widgets
+  ];
 
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..forward();
+  }
 
-    @override
-    void initState() {
-      super.initState();
-      _controller = AnimationController(
-        duration: const Duration(seconds: 2),
-        vsync: this,
-      )..forward();
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
-    @override
-    void dispose() {
-      _controller.dispose();
-      super.dispose();
-    }
-
-
-    @override
-    Widget build(BuildContext context) {
-      return MosaicCloud(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: MosaicCloud(
         children: List.generate(_skills.length, (index) {
           final animation = CurvedAnimation(
             parent: _controller,
@@ -118,12 +117,13 @@ late AnimationController _controller;
             opacity: animation,
             child: ScaleTransition(
               scale: animation,
-              child: _skills[index],
+              child: (index % 2 == 0)? RotatedBox(quarterTurns: 3, child: _skills[index],): _skills[index],
             ),
           );
         }),
-      );
-    }
+      ),
+    );
+  }
 }
 ```
 
