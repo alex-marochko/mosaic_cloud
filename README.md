@@ -15,6 +15,7 @@ animation widgets. The package itself focuses purely on providing the layout alg
 
 -   Arranges any collection of widgets in a dense, spiral-based mosaic.
 -   Highly performant, using `CustomMultiChildLayout` for efficiency.
+-   Customizable spacing between elements.
 -   Simple and easy-to-use API.
 
 ## Getting started
@@ -47,6 +48,7 @@ Widget build(BuildContext context) {
 return Scaffold(
   body: const Center(
       child: MosaicCloud(
+        spacing: 8.0, // Optional: control the gap between widgets
         children: [
           Text('Flutter'),
           Text('Dart'),
