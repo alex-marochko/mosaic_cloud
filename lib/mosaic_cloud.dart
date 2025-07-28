@@ -54,8 +54,10 @@ class MosaicCloud extends StatelessWidget {
    }
 
    Rect _findNextPosition(Size childSize, List<Rect> placedRects) {
-     // Simple spiral placement algorithm
-     // This is a basic implementation and can be optimized
+     // Simple spiral placement algorithm.
+     // This is a basic implementation and can be optimized.
+     const double angleStep = 0.2; // The angle increment for the spiral.
+                                  // Smaller values are more accurate but slower.
      double step = 10.0;
      double angle = 0.0;
      double distance = step;
@@ -85,7 +87,7 @@ class MosaicCloud extends StatelessWidget {
          return candidateRect;
        }
 
-       angle += 0.2; // Adjust for tighter/looser spiral
+       angle += angleStep; // Adjust for tighter/looser spiral
        if (angle > 2 * pi) {
          angle = 0;
          turns++;
