@@ -10,7 +10,7 @@ class MosaicCloud extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomMultiChildLayout(
-      delegate: _MosaicLayoutDelegate(
+      delegate: MosaicLayoutDelegate(
         childCount: children.length,
         spacing: spacing,
       ),
@@ -22,11 +22,12 @@ class MosaicCloud extends StatelessWidget {
   }
 }
 
-class _MosaicLayoutDelegate extends MultiChildLayoutDelegate {
+@visibleForTesting
+class MosaicLayoutDelegate extends MultiChildLayoutDelegate {
   final int childCount;
   final double spacing;
 
-  _MosaicLayoutDelegate({required this.childCount, required this.spacing});
+  MosaicLayoutDelegate({required this.childCount, required this.spacing});
 
   @override
   void performLayout(Size size) {
@@ -101,7 +102,7 @@ class _MosaicLayoutDelegate extends MultiChildLayoutDelegate {
   }
 
   @override
-  bool shouldRelayout(covariant _MosaicLayoutDelegate oldDelegate) {
+  bool shouldRelayout(covariant MosaicLayoutDelegate oldDelegate) {
     return oldDelegate.childCount != childCount ||
         oldDelegate.spacing != spacing;
   }
