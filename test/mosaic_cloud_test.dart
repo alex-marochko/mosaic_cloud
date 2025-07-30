@@ -4,8 +4,9 @@ import 'package:mosaic_cloud/mosaic_cloud.dart';
 
 void main() {
   group('MosaicCloud Widget Tests', () {
-    testWidgets('renders correctly with multiple children',
-        (WidgetTester tester) async {
+    testWidgets('renders correctly with multiple children', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -24,31 +25,30 @@ void main() {
       expect(find.byKey(const Key('child2')), findsOneWidget);
     });
 
-    testWidgets('renders correctly with an empty list of children',
-        (WidgetTester tester) async {
+    testWidgets('renders correctly with an empty list of children', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: MosaicCloud(
-              children: [],
-            ),
-          ),
-        ),
+        const MaterialApp(home: Scaffold(body: MosaicCloud(children: []))),
       );
 
       expect(find.byType(MosaicCloud), findsOneWidget);
       expect(find.byType(Container), findsNothing);
     });
 
-    testWidgets('renders correctly with a single child',
-        (WidgetTester tester) async {
+    testWidgets('renders correctly with a single child', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: MosaicCloud(
               children: [
                 SizedBox(
-                    key: const Key('singleChild'), width: 100, height: 100),
+                  key: const Key('singleChild'),
+                  width: 100,
+                  height: 100,
+                ),
               ],
             ),
           ),
@@ -73,11 +73,13 @@ void main() {
       expect(newDelegate.shouldRelayout(oldDelegate), isTrue);
     });
 
-    test('shouldRelayout returns false when delegate properties are the same',
-        () {
-      final oldDelegate = MosaicLayoutDelegate(childCount: 5, spacing: 4.0);
-      final newDelegate = MosaicLayoutDelegate(childCount: 5, spacing: 4.0);
-      expect(newDelegate.shouldRelayout(oldDelegate), isFalse);
-    });
+    test(
+      'shouldRelayout returns false when delegate properties are the same',
+      () {
+        final oldDelegate = MosaicLayoutDelegate(childCount: 5, spacing: 4.0);
+        final newDelegate = MosaicLayoutDelegate(childCount: 5, spacing: 4.0);
+        expect(newDelegate.shouldRelayout(oldDelegate), isFalse);
+      },
+    );
   });
 }
