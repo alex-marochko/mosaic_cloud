@@ -82,4 +82,47 @@ void main() {
       },
     );
   });
+
+  group('MosaicCloud Golden Tests', () {
+    testWidgets('renders a basic layout consistently', (
+      WidgetTester tester,
+    ) async {
+      final GlobalKey repaintBoundaryKey = GlobalKey();
+
+      final widgetToTest = MosaicCloud(
+        spacing: 8.0,
+        children: [
+          Container(color: Colors.blue, width: 100, height: 50),
+          Container(color: Colors.green, width: 70, height: 70),
+          Container(color: Colors.red, width: 50, height: 120),
+          Container(color: Colors.yellow, width: 80, height: 40),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: RepaintBoundary(
+            key: repaintBoundaryKey,
+            child: Scaffold(
+              body: Center(
+                child: Container(
+                  width: 400,
+                  height: 400,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                  ),
+                  child: widgetToTest,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await expectLater(
+        find.byKey(repaintBoundaryKey),
+        matchesGoldenFile('goldens/basic_layout.png'),
+      );
+    });
+  });
 }
