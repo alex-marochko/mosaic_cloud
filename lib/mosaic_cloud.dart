@@ -10,24 +10,23 @@ class MosaicCloud extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomMultiChildLayout(
-      delegate: MosaicLayoutDelegate(childCount: children.length, spacing: spacing),
+      delegate: _MosaicLayoutDelegate(
+        childCount: children.length,
+        spacing: spacing,
+      ),
       children: [
         for (int i = 0; i < children.length; i++)
-          LayoutId(
-            id: i,
-            child: children[i],
-          ),
+          LayoutId(id: i, child: children[i]),
       ],
     );
   }
 }
 
-@visibleForTesting
-class MosaicLayoutDelegate extends MultiChildLayoutDelegate {
+class _MosaicLayoutDelegate extends MultiChildLayoutDelegate {
   final int childCount;
   final double spacing;
 
-  MosaicLayoutDelegate({required this.childCount, required this.spacing});
+  _MosaicLayoutDelegate({required this.childCount, required this.spacing});
 
   @override
   void performLayout(Size size) {
@@ -41,7 +40,8 @@ class MosaicLayoutDelegate extends MultiChildLayoutDelegate {
         Rect childRect;
         if (i == 0) {
           // Place the first child in the center
-          final firstChildPosition = center - Offset(childSize.width / 2, childSize.height / 2);
+          final firstChildPosition =
+              center - Offset(childSize.width / 2, childSize.height / 2);
           positionChild(i, firstChildPosition);
           childRect = firstChildPosition & childSize;
         } else {
@@ -58,18 +58,18 @@ class MosaicLayoutDelegate extends MultiChildLayoutDelegate {
     // Simple spiral placement algorithm.
     // This is a basic implementation and can be optimized.
     const double angleStep = 0.2; // The angle increment for the spiral.
-                                 // Smaller values are more accurate but slower.
+    // Smaller values are more accurate but slower.
     double step = 10.0;
     double angle = 0.0;
     double distance = step;
     int turns = 0;
 
     while (true) {
-      final point = Offset(
-        distance * cos(angle),
-        distance * sin(angle),
-      ) +
-          placedRects.first.center; // Spiral out from the center of the first item
+      final point =
+          Offset(distance * cos(angle), distance * sin(angle)) +
+          placedRects
+              .first
+              .center; // Spiral out from the center of the first item
 
       final candidateRect = Rect.fromCenter(
         center: point,
@@ -94,13 +94,14 @@ class MosaicLayoutDelegate extends MultiChildLayoutDelegate {
       if (angle > 2 * pi) {
         angle = 0;
         turns++;
-        distance += step * (turns / 2); // Increase distance after each full turn
+        distance +=
+            step * (turns / 2); // Increase distance after each full turn
       }
     }
   }
 
   @override
-  bool shouldRelayout(covariant MosaicLayoutDelegate oldDelegate) {
+  bool shouldRelayout(covariant _MosaicLayoutDelegate oldDelegate) {
     return oldDelegate.childCount != childCount ||
         oldDelegate.spacing != spacing;
   }
