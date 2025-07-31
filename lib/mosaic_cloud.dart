@@ -1,66 +1,114 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
-class MosaicCloud extends StatelessWidget {
-  final List<Widget> children;
+class MosaicCloud extends MultiChildRenderObjectWidget {
   final double spacing;
 
-  const MosaicCloud({super.key, required this.children, this.spacing = 4.0});
+  const MosaicCloud({super.key, required super.children, this.spacing = 4.0});
 
   @override
-  Widget build(BuildContext context) {
-    return CustomMultiChildLayout(
-      delegate: MosaicLayoutDelegate(
-        childCount: children.length,
-        spacing: spacing,
-      ),
-      children: [
-        for (int i = 0; i < children.length; i++)
-          LayoutId(id: i, child: children[i]),
-      ],
-    );
+  RenderObject createRenderObject(BuildContext context) {
+    return RenderMosaicCloudBox(spacing: spacing);
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant RenderMosaicCloudBox renderObject,
+  ) {
+    renderObject.spacing = spacing;
   }
 }
 
-@visibleForTesting
-class MosaicLayoutDelegate extends MultiChildLayoutDelegate {
-  final int childCount;
-  final double spacing;
+class _MosaicCloudParentData extends ContainerBoxParentData<RenderBox> {}
 
-  MosaicLayoutDelegate({required this.childCount, required this.spacing});
+class RenderMosaicCloudBox extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, _MosaicCloudParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _MosaicCloudParentData> {
+  double _spacing;
+
+  RenderMosaicCloudBox({required double spacing}) : _spacing = spacing;
+
+  double get spacing => _spacing;
+
+  set spacing(double value) {
+    if (_spacing == value) return;
+    _spacing = value;
+    markNeedsLayout();
+  }
 
   @override
-  void performLayout(Size size) {
-    final center = size.center(Offset.zero);
-    final List<Rect> placedRects = [];
-
-    for (int i = 0; i < childCount; i++) {
-      if (hasChild(i)) {
-        final childSize = layoutChild(i, BoxConstraints.loose(size));
-
-        Rect childRect;
-        if (i == 0) {
-          // Place the first child in the center
-          final firstChildPosition =
-              center - Offset(childSize.width / 2, childSize.height / 2);
-          positionChild(i, firstChildPosition);
-          childRect = firstChildPosition & childSize;
-        } else {
-          // Use a spiral algorithm to find the next position
-          childRect = _findNextPosition(childSize, placedRects);
-          positionChild(i, childRect.topLeft);
-        }
-        placedRects.add(childRect);
-      }
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _MosaicCloudParentData) {
+      child.parentData = _MosaicCloudParentData();
     }
   }
 
+  @override
+  void performLayout() {
+    if (firstChild == null) {
+      size = Size.zero;
+      return;
+    }
+
+    final List<Rect> calculatedRects = [];
+    RenderBox? child = firstChild;
+    final List<RenderBox> children = [];
+
+    // Layout children with loose constraints to get their preferred sizes
+    while (child != null) {
+      final childParentData = child.parentData as _MosaicCloudParentData;
+      children.add(child);
+
+      child.layout(const BoxConstraints(), parentUsesSize: true);
+      final childSize = child.size;
+
+      Rect childRect;
+      if (calculatedRects.isEmpty) {
+        childRect = Offset.zero & childSize;
+      } else {
+        childRect = _findNextPosition(childSize, calculatedRects);
+      }
+      calculatedRects.add(childRect);
+      child = childParentData.nextSibling;
+    }
+
+    Rect boundingBox = calculatedRects.reduce((a, b) => a.expandToInclude(b));
+
+    double scale = 1.0;
+    if (boundingBox.width > constraints.maxWidth) {
+      scale = constraints.maxWidth / boundingBox.width;
+    }
+    if (boundingBox.height * scale > constraints.maxHeight) {
+      scale = constraints.maxHeight / boundingBox.height;
+    }
+
+    final Matrix4 transform = Matrix4.identity()..scale(scale, scale);
+
+    final Offset offsetToOrigin = -boundingBox.topLeft;
+
+    for (int i = 0; i < children.length; i++) {
+      final childParentData = children[i].parentData as _MosaicCloudParentData;
+      final initialOffset = calculatedRects[i].topLeft + offsetToOrigin;
+      childParentData.offset = MatrixUtils.transformPoint(
+        transform,
+        initialOffset,
+      );
+
+      children[i].layout(
+        BoxConstraints.tight(calculatedRects[i].size * scale),
+        parentUsesSize: true,
+      );
+    }
+
+    size = constraints.constrain(boundingBox.size * scale);
+  }
+
   Rect _findNextPosition(Size childSize, List<Rect> placedRects) {
-    // Simple spiral placement algorithm.
-    // This is a basic implementation and can be optimized.
-    const double angleStep = 0.2; // The angle increment for the spiral.
-    // Smaller values are more accurate but slower.
+    const double angleStep = 0.2;
     double step = 10.0;
     double angle = 0.0;
     double distance = step;
@@ -69,9 +117,7 @@ class MosaicLayoutDelegate extends MultiChildLayoutDelegate {
     while (true) {
       final point =
           Offset(distance * cos(angle), distance * sin(angle)) +
-          placedRects
-              .first
-              .center; // Spiral out from the center of the first item
+          placedRects.first.center;
 
       final candidateRect = Rect.fromCenter(
         center: point,
@@ -82,7 +128,6 @@ class MosaicLayoutDelegate extends MultiChildLayoutDelegate {
       bool intersects = false;
       for (final rect in placedRects) {
         if (candidateRect.overlaps(rect.inflate(spacing))) {
-          // Use the spacing parameter
           intersects = true;
           break;
         }
@@ -92,19 +137,22 @@ class MosaicLayoutDelegate extends MultiChildLayoutDelegate {
         return candidateRect;
       }
 
-      angle += angleStep; // Adjust for tighter/looser spiral
+      angle += angleStep;
       if (angle > 2 * pi) {
         angle = 0;
         turns++;
-        distance +=
-            step * (turns / 2); // Increase distance after each full turn
+        distance += step * (turns / 2);
       }
     }
   }
 
   @override
-  bool shouldRelayout(covariant MosaicLayoutDelegate oldDelegate) {
-    return oldDelegate.childCount != childCount ||
-        oldDelegate.spacing != spacing;
+  void paint(PaintingContext context, Offset offset) {
+    defaultPaint(context, offset);
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    return defaultHitTestChildren(result, position: position);
   }
 }
