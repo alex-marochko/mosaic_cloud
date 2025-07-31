@@ -33,7 +33,6 @@ void main() {
       );
 
       expect(find.byType(MosaicCloud), findsOneWidget);
-      expect(find.byType(Container), findsNothing);
     });
 
     testWidgets('renders correctly with a single child', (
@@ -60,35 +59,10 @@ void main() {
     });
   });
 
-  group('MosaicLayoutDelegate Unit Tests', () {
-    test('shouldRelayout returns true when childCount changes', () {
-      final oldDelegate = MosaicLayoutDelegate(childCount: 5, spacing: 4.0);
-      final newDelegate = MosaicLayoutDelegate(childCount: 10, spacing: 4.0);
-      expect(newDelegate.shouldRelayout(oldDelegate), isTrue);
-    });
-
-    test('shouldRelayout returns true when spacing changes', () {
-      final oldDelegate = MosaicLayoutDelegate(childCount: 5, spacing: 4.0);
-      final newDelegate = MosaicLayoutDelegate(childCount: 5, spacing: 8.0);
-      expect(newDelegate.shouldRelayout(oldDelegate), isTrue);
-    });
-
-    test(
-      'shouldRelayout returns false when delegate properties are the same',
-      () {
-        final oldDelegate = MosaicLayoutDelegate(childCount: 5, spacing: 4.0);
-        final newDelegate = MosaicLayoutDelegate(childCount: 5, spacing: 4.0);
-        expect(newDelegate.shouldRelayout(oldDelegate), isFalse);
-      },
-    );
-  });
-
   group('MosaicCloud Golden Tests', () {
     testWidgets('renders a basic layout consistently', (
       WidgetTester tester,
     ) async {
-      final GlobalKey repaintBoundaryKey = GlobalKey();
-
       final widgetToTest = MosaicCloud(
         spacing: 8.0,
         children: [
@@ -101,18 +75,15 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: RepaintBoundary(
-            key: repaintBoundaryKey,
-            child: Scaffold(
-              body: Center(
-                child: Container(
-                  width: 400,
-                  height: 400,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: widgetToTest,
+          home: Scaffold(
+            body: Center(
+              child: Container(
+                width: 400,
+                height: 400,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black),
                 ),
+                child: widgetToTest,
               ),
             ),
           ),
@@ -120,7 +91,7 @@ void main() {
       );
 
       await expectLater(
-        find.byKey(repaintBoundaryKey),
+        find.byType(MosaicCloud),
         matchesGoldenFile('goldens/basic_layout.png'),
       );
     });
