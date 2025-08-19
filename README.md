@@ -14,7 +14,7 @@ animation widgets. The package itself focuses purely on providing the layout alg
 ## Features
 
 -   Arranges any collection of widgets in a dense, spiral-based mosaic.
--   Highly performant, using `CustomMultiChildLayout` for efficiency.
+-   Highly performant, using `MultiChildRenderObjectWidget` for efficiency.
 -   Customizable spacing between elements.
 -   Simple and easy-to-use API.
 

@@ -1,3 +1,7 @@
+## 0.2.1
+
+* Updated `README.md` to reflect the use of `MultiChildRenderObjectWidget` instead of `CustomMultiChildLayout`.
+
 ## 0.2.0
 
 * **BREAKING CHANGE**: The layout logic has been completely reworked using a custom `RenderObject`.
