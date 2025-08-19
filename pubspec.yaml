@@ -1,6 +1,6 @@
 name: mosaic_cloud
 description: A Flutter widget that displays a collection of widgets in a mosaic or orthogonal word cloud layout.
-version: 0.2.0
+version: 0.2.1
 homepage: https://github.com/alex-marochko/mosaic_cloud
 
 environment:
